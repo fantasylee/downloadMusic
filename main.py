@@ -17,7 +17,11 @@ class MyWindow(QMainWindow, Ui_MainWindow):
         option = webdriver.ChromeOptions()
         option.add_argument("headless")
         # dr=webdriver.Chrome(options=option,executable_path="chromedriver.exe")
-        self.dr=webdriver.Chrome(options=option,executable_path="chromedriver.exe")
+        try:
+            self.dr=webdriver.Chrome(options=option,executable_path="chromedriver.exe")
+        except:
+            self.dr=webdriver.Chrome(options=option,executable_path="chromedriver")
+
         # self.dr = webdriver.Chrome(options=(webdriver.ChromeOptions()).add_argument("headless"),executable_path="chromedriver.exe")
     def setupUi(self,MainWindow,parent=None):
         config=Config("config.ini")
