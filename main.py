@@ -31,7 +31,7 @@ class MyWindow(QMainWindow, Ui_MainWindow):
         self.filePathEdit.setToolTip("点击打开文件夹")
         # self.filePathEdit.setStyleSheet("font:20pt '楷体';border-width: 1px;border-style: solid;border-color: rgb(255, 0, 0);")
         # self.downResultLable.setStyleSheet("font:20pt '宋体';border-width: 1px;border-style: solid;border-color: rgb(255, 0, 0);")
-        self.searchButton.clicked.connect(self.searchSong_Thread1)
+        self.searchButton.clicked.connect(self.searchButtonThreadClick)
         self.selectPathButton.clicked.connect(self.filePathGet)
         #设置点击列表后的动作
         self.resultWidget.doubleClicked.connect(self.doubleClickTableDownload)
@@ -48,9 +48,7 @@ class MyWindow(QMainWindow, Ui_MainWindow):
     def searchSong_Thread1(self):
         self.resultWidget.setRowCount(0)
         searchValue = self.searchEdit.text()
-        # searchThread = threading.Thread(target=search_163music,args=(searchValue,))
         all_result=search_163music(self.dr,searchValue)
-        # print(all_result)
         for i in range(len(all_result)):
             item = all_result[i]
             row = self.resultWidget.rowCount()
@@ -58,13 +56,18 @@ class MyWindow(QMainWindow, Ui_MainWindow):
             for j in range(len(item)):
                 item = QTableWidgetItem(str(all_result[i][j]))
                 self.resultWidget.setItem(row, j, item)
-    # def isNotClicked_Thread2(self):
-    #     self.searchButton.setEnabled(False)
-    #     for secends in range(20,-1):
-    #         self.searchButton.setText(QtCore.QCoreApplication.translate("MainWindow", secends))
-    #         time.sleep(1)
-    #     self.searchButton.setEnabled(True)
-    #     self.searchButton.setText(QtCore.QCoreApplication.translate("MainWindow", "搜索"))
+    def isNotClicked_Thread2(self):
+        self.searchButton.setEnabled(False)
+        for secends in range(5,0,-1):
+            self.searchButton.setText(QtCore.QCoreApplication.translate("MainWindow", str(secends)))
+            time.sleep(1)
+        self.searchButton.setEnabled(True)
+        self.searchButton.setText(QtCore.QCoreApplication.translate("MainWindow", "搜索"))
+    def searchButtonThreadClick(self):
+        searchThread = threading.Thread(target=self.searchSong_Thread1)
+        isNotClickThread = threading.Thread(target=self.isNotClicked_Thread2)
+        searchThread.start()
+        isNotClickThread.start()
 
     def filePathGet(self):
         config=Config("config.ini")
