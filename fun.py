@@ -53,7 +53,7 @@ def search_163music(dr,word):#获取网易云搜索列表结果
         songName,songNameUrl=songNameInfo.text,songNameInfo.find_element_by_tag_name("a").get_attribute("href")
         songArtistInfo=songInfo[3]
         songArtistName_source=songArtistInfo.text
-        songArtistName=songArtistName_source.replace("/","and")
+        songArtistName=songArtistName_source.replace("/","+")
         songAlbumInfo=songInfo[4]
         songAlbumName = songAlbumInfo.text
         songTime=result.find_elements_by_xpath("./div")[-1].text
