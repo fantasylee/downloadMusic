@@ -60,7 +60,7 @@ def search_163music(dr,word):#获取网易云搜索列表结果
         songId=songNameUrl.split("id=")[-1]#分割url字符串，获取songID
         result_pack.append((songName,songArtistName,songAlbumName,songTime,songId))
     [Config("config.ini").set("songId",str(i),result_pack[i][-1]) for i in range(len(result_pack))]#将获取的songId加到config.ini文件中
-    [Config("config.ini").set("songName",str(i),result_pack[i][0]+"+"+ result_pack[i][1]) for i in range(len(result_pack))]#将获取的songName加到config.ini文件中
+    [Config("config.ini").set("songName",str(i),result_pack[i][1]+"-"+ result_pack[i][0]) for i in range(len(result_pack))]#将获取的songName加到config.ini文件中
     return result_pack
 def checkFile(path,resourceFileName):
     for root, dirs, files in os.walk(path):
