@@ -14,9 +14,11 @@ class MyWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super(MyWindow, self).__init__(parent)
         self.setupUi(self)
+        """每次开启时，自动后台开启一个不展示窗口的chrome"""
         option = webdriver.ChromeOptions()
         option.add_argument("headless")
         # dr=webdriver.Chrome(options=option,executable_path="chromedriver.exe")
+        #适配mac和Windows
         try:
             self.dr=webdriver.Chrome(options=option,executable_path="chromedriver.exe")
         except:
@@ -24,6 +26,7 @@ class MyWindow(QMainWindow, Ui_MainWindow):
 
         # self.dr = webdriver.Chrome(options=(webdriver.ChromeOptions()).add_argument("headless"),executable_path="chromedriver.exe")
     def setupUi(self,MainWindow,parent=None):
+        """ui定义"""
         config=Config("config.ini")
         super(MyWindow,self).setupUi(MainWindow)
         self.showFilePath(config.startConfig())
@@ -44,11 +47,10 @@ class MyWindow(QMainWindow, Ui_MainWindow):
         self.resultWidget.setSelectionBehavior(QTableWidget.SelectRows)  # 设置选中行
         # 设置表格不能被编辑
         self.resultWidget.setEditTriggers(QTableWidget.NoEditTriggers)
+#======================================================================================================================================
 
-    def searchSong_Thread1(self):
-        self.resultWidget.setRowCount(0)
-        searchValue = self.searchEdit.text()
-        all_result=search_163music(self.dr,searchValue)
+    '''按钮定义'''
+    def showResult(self,all_result):
         for i in range(len(all_result)):
             item = all_result[i]
             row = self.resultWidget.rowCount()
@@ -56,6 +58,11 @@ class MyWindow(QMainWindow, Ui_MainWindow):
             for j in range(len(item)):
                 item = QTableWidgetItem(str(all_result[i][j]))
                 self.resultWidget.setItem(row, j, item)
+    def searchSong_Thread1(self):
+        self.resultWidget.setRowCount(0)
+        searchValue = self.searchEdit.text()
+        all_result=search_163music(self.dr,searchValue)
+        self.showResult(all_result)
     def isNotClicked_Thread2(self):
         self.searchButton.setEnabled(False)
         for secends in range(5,0,-1):

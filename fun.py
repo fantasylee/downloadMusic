@@ -37,31 +37,34 @@ class Config(object):
             cwdpath=os.getcwd()
             config.set("downFilePath", "path",cwdpath)
             return cwdpath
+def getResult(dr):
+    dr.switch_to.frame("g_iframe")
+    searchResultPk = dr.find_element_by_class_name("srchsongst").find_elements_by_xpath("./div")
+    resultPack = []
+    for result in searchResultPk:
+        songInfo = result.find_elements_by_xpath("./div")
+        songNameInfo = (songInfo)[1]  # 每个div下面有五个a标签，第2,4,5分别为歌曲名，作者名，专辑名(有部分歌曲没有songAlbumUrl，报错)
+        songName, songNameUrl = songNameInfo.text, songNameInfo.find_element_by_tag_name("a").get_attribute("href")
+        songArtistInfo = songInfo[3]
+        songArtistName_source = songArtistInfo.text
+        songArtistName = songArtistName_source.replace("/", "+")
+        songAlbumInfo = songInfo[4]
+        songAlbumName = songAlbumInfo.text
+        songTime = result.find_elements_by_xpath("./div")[-1].text
+        songId = songNameUrl.split("id=")[-1]  # 分割url字符串，获取songID
+        resultPack.append((songName, songArtistName, songAlbumName, songTime, songId))
+    [Config("config.ini").set("songId", str(i), resultPack[i][-1]) for i in
+     range(len(resultPack))]  # 将获取的songId加到config.ini文件中
+    [Config("config.ini").set("songName", str(i), resultPack[i][1] + "-" + resultPack[i][0]) for i in
+     range(len(resultPack))]  # 将获取的songName加到config.ini文件中
+    return resultPack
+
 def search_163music(dr,word):#获取网易云搜索列表结果
     search_url = "https://music.163.com/#/search/m/?s={word}".format(word=word)
-    # option = webdriver.ChromeOptions()
-    # option.add_argument("headless")
-    # dr=webdriver.Chrome(options=option,executable_path="chromedriver.exe")
     dr.get(search_url)
     time.sleep(0.5)
-    dr.switch_to.frame("g_iframe")
-    searchResultPk=dr.find_element_by_class_name("srchsongst").find_elements_by_xpath("./div")
-    result_pack=[]
-    for result in searchResultPk:
-        songInfo=result.find_elements_by_xpath("./div")
-        songNameInfo=(songInfo)[1]#每个div下面有五个a标签，第2,4,5分别为歌曲名，作者名，专辑名(有部分歌曲没有songAlbumUrl，报错)
-        songName,songNameUrl=songNameInfo.text,songNameInfo.find_element_by_tag_name("a").get_attribute("href")
-        songArtistInfo=songInfo[3]
-        songArtistName_source=songArtistInfo.text
-        songArtistName=songArtistName_source.replace("/","+")
-        songAlbumInfo=songInfo[4]
-        songAlbumName = songAlbumInfo.text
-        songTime=result.find_elements_by_xpath("./div")[-1].text
-        songId=songNameUrl.split("id=")[-1]#分割url字符串，获取songID
-        result_pack.append((songName,songArtistName,songAlbumName,songTime,songId))
-    [Config("config.ini").set("songId",str(i),result_pack[i][-1]) for i in range(len(result_pack))]#将获取的songId加到config.ini文件中
-    [Config("config.ini").set("songName",str(i),result_pack[i][1]+"-"+ result_pack[i][0]) for i in range(len(result_pack))]#将获取的songName加到config.ini文件中
-    return result_pack
+    result=getResult(dr)
+    return result
 def checkFile(path,resourceFileName):
     for root, dirs, files in os.walk(path):
         while resourceFileName+".mp3" in files:
